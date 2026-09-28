@@ -40,6 +40,7 @@ package net.sourceforge.jnlp;
 import java.net.URL;
 import net.sourceforge.swing.SwingUtils;
 
+import net.sourceforge.jnlp.splashscreen.SplashUtils;
 import net.sourceforge.jnlp.cache.ResourceTracker;
 import net.sourceforge.jnlp.cache.UpdatePolicy;
 import net.sourceforge.jnlp.runtime.ApplicationInstance;
@@ -107,8 +108,9 @@ public class GuiLaunchHandler extends AbstractLaunchHandler {
         int preferredWidth = 500;
         int preferredHeight = 400;
 
-        final URL splashImageURL = file.getInformation().getIconLocation(
-                IconDesc.SPLASH, preferredWidth, preferredHeight);
+        final URL splashImageURL = SplashUtils.isCustomSplashRequested()
+            ? null
+            : file.getInformation().getIconLocation(IconDesc.SPLASH, preferredWidth, preferredHeight);
 
         final ResourceTracker resourceTracker = new ResourceTracker(true);
         if (splashImageURL != null) {

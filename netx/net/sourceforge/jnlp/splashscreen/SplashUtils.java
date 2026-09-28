@@ -44,12 +44,26 @@ import net.sourceforge.jnlp.splashscreen.impls.DefaultSplashScreen2012;
 import net.sourceforge.jnlp.splashscreen.impls.DefaultErrorSplashScreen2012;
 import net.sourceforge.jnlp.util.logging.OutputController;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
+import net.sourceforge.jnlp.splashscreen.impls.CustomSplashScreen;
+
 public class SplashUtils {
 
     static final String ICEDTEA_WEB_PLUGIN_SPLASH = "ICEDTEA_WEB_PLUGIN_SPLASH";
     static final String ICEDTEA_WEB_SPLASH = "ICEDTEA_WEB_SPLASH";
+    static final String ICEDTEA_WEB_SPLASH_CUSTOM_IMG = "ICEDTEA_WEB_SPLASH_CUSTOM_IMG";
+
     static final String NONE = "none";
     static final String DEFAULT = "default";
+    static final String CUSTOM = "custom";
 
     /**
      * Indicator whether to show icedtea-web plugin or just icedtea-web
@@ -172,45 +186,127 @@ public class SplashUtils {
      * @param isError
      */
     public static SplashPanel getSplashScreen(int width, int height, SplashUtils.SplashReason splashReason, Throwable loadingException, boolean isError) {
-        String splashEnvironmetVar = null;
-        String pluginSplashEnvironmetVar = null;
+        String mode = getSplashMode(splashReason);
+
+        String imagePath = CUSTOM.equals(mode) && !isError
+                ? getEnvironmentVariable(ICEDTEA_WEB_SPLASH_CUSTOM_IMG)
+                : null;
+
+        return getSplashScreen(
+                width,
+                height,
+                splashReason,
+                loadingException,
+                isError,
+                mode,
+                imagePath);
+    }
+
+    /**
+     * Whether the environment requests a custom splash instead of
+     * the splash image specified by the JNLP file.
+     */
+    public static boolean isCustomSplashRequested() {
+        return CUSTOM.equals(getSplashMode(getReason()));
+    }
+
+    private static String getSplashMode(SplashReason reason) {
+        return getEnvironmentVariable(
+                SplashReason.JAVAWS.equals(reason)
+                        ? ICEDTEA_WEB_SPLASH
+                        : ICEDTEA_WEB_PLUGIN_SPLASH);
+    }
+
+    private static String getEnvironmentVariable(String name) {
         try {
-            pluginSplashEnvironmetVar = System.getenv(ICEDTEA_WEB_PLUGIN_SPLASH);
-            splashEnvironmetVar = System.getenv(ICEDTEA_WEB_SPLASH);
-        } catch (Exception ex) {
+            return System.getenv(name);
+        } 
+        catch (SecurityException ex) {
             OutputController.getLogger().log(OutputController.Level.ERROR_ALL, ex);
+
+            return null;
         }
-        SplashPanel sp = null;
-        if (SplashReason.JAVAWS.equals(splashReason)) {
-            if (NONE.equals(splashEnvironmetVar)) {
-                return null;
+    }
+
+    /**
+     * Selects the splash using explicit configuration values.
+     * This also allows testing without modifying process environment variables.
+     */
+    static SplashPanel getSplashScreen(int width, int height, SplashReason reason, Throwable loadingException, boolean isError, String mode, String imagePath) {
+        SplashPanel splash = null;
+
+        if (NONE.equals(mode)) {
+            return null;
+        }
+
+        if (CUSTOM.equals(mode) && !isError) {
+            BufferedImage image = loadCustomImage(imagePath);
+
+            if (image != null) {
+                splash = new CustomSplashScreen(width, height, reason, image);
             }
-            if (DEFAULT.equals(splashEnvironmetVar)) {
-                if (isError) {
-                    sp = new DefaultErrorSplashScreen2012(width, height, splashReason, loadingException);
-                } else {
-                    sp = new DefaultSplashScreen2012(width, height, splashReason);
+        }
+
+        // Relays on the default splash screen!
+        if (splash == null) {
+            if (isError) {
+                // Preserve the existing error details and diagnostic controls.
+                splash = new DefaultErrorSplashScreen2012(width, height, reason, loadingException);
+            } 
+            else {
+                splash = new DefaultSplashScreen2012(width, height, reason);
+            }
+        }
+
+        splash.setVersion(Boot.version);
+        return splash;
+    }
+
+    /**
+     * Loads a local PNG, returning null when it cannot be used.
+     */
+    private static BufferedImage loadCustomImage(String path) {
+        if (path == null || path.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            File file = new File(path);
+
+            if (!file.isFile() || !file.canRead()) {
+                throw new IOException(String.format("Custom splash image is not a readable file: %s", path));
+            }
+
+            try (ImageInputStream input = ImageIO.createImageInputStream(file)) {
+                if (input == null) {
+                    throw new IOException(String.format("Cannot open custom splash image: %s", path));
+                }
+
+                Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+
+                if (!readers.hasNext()) {
+                    throw new IOException(String.format("Invalid custom splash image: %s", path));
+                }
+
+                ImageReader reader = readers.next();
+                try {
+                    // Validate the actual format, not just the filename extension.
+                    if (!"png".equalsIgnoreCase(reader.getFormatName())) {
+                        throw new IOException(String.format("Custom splash image must be a PNG: %s", path));
+                    }
+
+                    reader.setInput(input);
+                    return reader.read(0);
+                } 
+                finally {
+                    reader.dispose();
                 }
             }
+        } 
+        catch (IOException | RuntimeException ex) {
+            OutputController.getLogger().log(OutputController.Level.ERROR_ALL, ex);
+
+            return null;
         }
-        if (SplashReason.APPLET.equals(splashReason)) {
-            if (NONE.equals(pluginSplashEnvironmetVar)) {
-                return null;
-            }
-            if (DEFAULT.equals(pluginSplashEnvironmetVar)) {
-                if (isError) {
-                    sp = new DefaultErrorSplashScreen2012(width, height, splashReason, loadingException);
-                } else {
-                    sp = new DefaultSplashScreen2012(width, height, splashReason);
-                }
-            }
-        }
-        if (isError) {
-            sp = new DefaultErrorSplashScreen2012(width, height, splashReason, loadingException);
-        } else {
-            sp = new DefaultSplashScreen2012(width, height, splashReason);
-        }
-        sp.setVersion(Boot.version);
-        return sp;
     }
 }

@@ -87,8 +87,18 @@ public class JNLPSplashScreen extends JDialog {
 
     public void setSplashImageURL(URL url) {
         splashImageLoaded = false;
+        splashImage = null;
+        splashImageUrl = null;
+
+        if (splash != null) {
+            splash.stopAnimation();
+            remove(splash.getSplashComponent());
+            splash = null;
+            componetSplash = null;
+        }
+
         try {
-            if (url != null) {
+            if (url != null && !SplashUtils.isCustomSplashRequested() ) {
                 splashImageUrl = url;
                 splashImage = null;
                 try {
