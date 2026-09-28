@@ -14,3 +14,102 @@ integration-tests/classloader-integration-tests-module-parent/target
 integration-tests/classloader-integration-tests-module-1/target
 integration-tests/classloader-integration-tests-module-wrapper/target
 artifact-no-dependencies/target
+
+# Local build dependencies and Windows packaging
+/build-deps/
+/build-native/
+/dist-native/
+/build/
+/tmp/
+
+# Java, launcher, installer and test build outputs
+/netx.build/
+/launcher.build/
+/launcher.in.*/
+/win-installer.build/
+/tests.build/
+/liveconnect/
+/stamps/
+
+# Rust and Maven build outputs
+target/
+
+# Autoconf / Automake generated files
+/autom4te.cache/
+/aclocal.m4
+/configure
+/configure~
+/Makefile
+/Makefile.in
+/config.log
+/config.status
+/config.cache
+/config.guess
+/config.sub
+/install-sh
+/missing
+/depcomp
+/compile
+/test-driver
+.deps/
+.libs/
+
+# Generated configuration and source lists
+/build.properties
+/netx.manifest
+/jrunscript
+/*-source-files.txt
+/junit-jnlp-dist-*.txt
+/netx-dist-tests-whitelist
+
+# Generated desktop integration
+/javaws.desktop
+/itweb-settings.desktop
+/policyeditor.desktop
+/completion/javaws.bash
+/completion/itweb-settings.bash
+/completion/policyeditor.bash
+/metadata/
+
+# Generated documentation
+/docs/netx/
+/docs/plugin/
+/icedtea-web-docs/
+/netx/net/sourceforge/jnlp/resources/AUTHORS.html
+/netx/net/sourceforge/jnlp/resources/COPYING.html
+/netx/net/sourceforge/jnlp/resources/ChangeLog.html
+/netx/net/sourceforge/jnlp/resources/NEWS.html
+
+# Compiled intermediate files
+*.class
+*.o
+*.obj
+*.pdb
+*.ilk
+*.idb
+
+# Generated distribution archives
+/icedtea-web-*.zip
+/icedtea-web-*.tar.gz
+/icedtea-web-*.tar.bz2
+/icedtea-web-*.tar.xz
+/icedtea-web-*.msi
+
+# Local IDE files
+.idea/
+.vs/
+*.iml
+*.suo
+*.user
+
+# OS and editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# JVM crash reports
+hs_err_pid*.log
+replay_pid*.log

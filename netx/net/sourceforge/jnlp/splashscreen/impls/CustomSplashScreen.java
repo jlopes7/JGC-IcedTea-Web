@@ -17,8 +17,8 @@ import net.sourceforge.jnlp.splashscreen.parts.BasicComponentSplashScreen;
  */
 public final class CustomSplashScreen extends BasicComponentSplashScreen {
 
-    private static final int MAX_WIDTH = 800;
-    private static final int MAX_HEIGHT = 600;
+    static public final int MAX_WIDTH = 720;
+    static public final int MAX_HEIGHT = (int) (MAX_WIDTH * net.sourceforge.jnlp.splashscreen.SplashUtils.ASPECT_RATIO);
 
     private final BufferedImage image;
     private int percentage;
@@ -35,15 +35,19 @@ public final class CustomSplashScreen extends BasicComponentSplashScreen {
         setOpaque(false);
         setBackground(new Color(0, 0, 0, 0));
 
-        int targetWidth = (image != null && image.getWidth() > 0) ? image.getWidth() : width;
-        int targetHeight = (image != null && image.getHeight() > 0) ? image.getHeight() : height;
+        // These limits have already been calculated by SplashUtils.
+        int maxWidth = Math.max(1, width);
+        int maxHeight = Math.max(1, height);
 
-        // Clamp dimensions preserving aspect ratio
-        if (targetWidth > MAX_WIDTH || targetHeight > MAX_HEIGHT) {
-            double scale = Math.min((double) MAX_WIDTH / targetWidth, (double) MAX_HEIGHT / targetHeight);
-            targetWidth = Math.max(1, (int) Math.round(targetWidth * scale));
-            targetHeight = Math.max(1, (int) Math.round(targetHeight * scale));
-        }
+        int targetWidth = image != null ? image.getWidth() : maxWidth;
+        int targetHeight = image != null ? image.getHeight() : maxHeight;
+
+        // Scale down to fit both limits, preserving the image's aspect ratio.
+        // A smaller image stays at its original size.
+        double scale = Math.min(1.0, Math.min((double) maxWidth / targetWidth, (double) maxHeight / targetHeight));
+
+        targetWidth = Math.max(1, (int) Math.round(targetWidth * scale));
+        targetHeight = Math.max(1, (int) Math.round(targetHeight * scale));
 
         setSplashWidth(targetWidth);
         setSplashHeight(targetHeight);
@@ -65,9 +69,6 @@ public final class CustomSplashScreen extends BasicComponentSplashScreen {
 
     @Override
     public Dimension getPreferredSize() {
-        if (image != null) {
-            return new Dimension(image.getWidth(), image.getHeight());
-        }
         return new Dimension(getSplashWidth(), getSplashHeight());
     }
 

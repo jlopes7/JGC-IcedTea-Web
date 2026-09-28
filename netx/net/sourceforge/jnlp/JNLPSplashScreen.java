@@ -37,6 +37,8 @@ exception statement from your version. */
 
 package net.sourceforge.jnlp;
 
+import java.awt.Color;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -56,6 +58,8 @@ import net.sourceforge.jnlp.util.ImageResources;
 import net.sourceforge.jnlp.util.logging.OutputController;
 import net.sourceforge.jnlp.util.ScreenFinder;
 
+import net.sourceforge.jnlp.splashscreen.impls.CustomSplashScreen;
+
 public class JNLPSplashScreen extends JDialog {
 
 
@@ -72,6 +76,8 @@ public class JNLPSplashScreen extends JDialog {
 
     public JNLPSplashScreen(ResourceTracker resourceTracker, final JNLPFile file) {
         super();
+        setUndecorated(true);
+        setBackground(new Color(0, 0, 0, 0));
         this.setName("JNLPSplashScreen");
         SwingUtils.info(this);
         setIconImages(ImageResources.INSTANCE.getApplicationImages());
@@ -152,17 +158,35 @@ public class JNLPSplashScreen extends JDialog {
     private void correctSize() {
         int minimumWidth = DEF_WIDTH;
         int minimumHeight = DEF_HEIGHT;
-        if (splashImage != null) {
-            Insets insets = getInsets();
-            minimumWidth = splashImage.getWidth(null) + insets.left
-                    + insets.right;
-            minimumHeight = splashImage.getHeight(null) + insets.top
-                    + insets.bottom;
-        }
+
         setMinimumSize(new Dimension(0, 0));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+        if (splashImage != null) {
+            Insets insets = getInsets();
+            minimumWidth = splashImage.getWidth(null) + insets.left + insets.right;
+            minimumHeight = splashImage.getHeight(null) + insets.top + insets.bottom;
+            
+            setSize(new Dimension(minimumWidth, minimumHeight));
+            setPreferredSize(new Dimension(minimumWidth, minimumHeight));
+        }
+        else if (componetSplash instanceof CustomSplashScreen) {
+            // Let the layout manager query CustomSplashScreen's preferred size 
+            pack();
+
+            // Apply OS-level corner rounding (30px radius)
+            setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
+        } 
+        else {
+            // Fallback for default splash screens
+            setSize(new Dimension(minimumWidth, minimumHeight));
+            setPreferredSize(new Dimension(minimumWidth, minimumHeight));
+        }
+        /*setMinimumSize(new Dimension(0, 0));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         setSize(new Dimension(minimumWidth, minimumHeight));
-        setPreferredSize(new Dimension(minimumWidth, minimumHeight));
+        setPreferredSize(new Dimension(minimumWidth, minimumHeight));*/
+        
         ScreenFinder.centerWindowsToCurrentScreen(this);
     }
 

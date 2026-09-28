@@ -396,6 +396,8 @@ pub mod win {
 
     // function declarations
 
+    #[link(name = "kernel32")]
+    #[link(name = "advapi32")]
     extern "system" {
         pub fn AttachConsole(dwProcessId: c_ulong) -> c_int;
         

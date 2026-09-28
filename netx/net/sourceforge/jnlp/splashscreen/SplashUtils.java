@@ -61,9 +61,15 @@ public class SplashUtils {
     static final String ICEDTEA_WEB_SPLASH = "ICEDTEA_WEB_SPLASH";
     static final String ICEDTEA_WEB_SPLASH_CUSTOM_IMG = "ICEDTEA_WEB_SPLASH_CUSTOM_IMG";
 
+    static final String ICEDTEA_WEB_SPLASH_MAXWIDTH  = "ICEDTEA_WEB_SPLASH_MAXWIDTH";
+    static final String ICEDTEA_WEB_SPLASH_MAXHEIGHT = "ICEDTEA_WEB_SPLASH_MAXHEIGHT";
+
     static final String NONE = "none";
     static final String DEFAULT = "default";
     static final String CUSTOM = "custom";
+
+    static public final float ASPECT_RATIO = 0.75f;
+    static private final int NIL = 0;
 
     /**
      * Indicator whether to show icedtea-web plugin or just icedtea-web
@@ -192,14 +198,88 @@ public class SplashUtils {
                 ? getEnvironmentVariable(ICEDTEA_WEB_SPLASH_CUSTOM_IMG)
                 : null;
 
+        boolean customLoadingSplash = CUSTOM.equals(mode) && !isError;
+
+        int defaultWidth = customLoadingSplash ? CustomSplashScreen.MAX_WIDTH : width;
+        int defaultHeight = customLoadingSplash
+                ? (int) (CustomSplashScreen.MAX_WIDTH * ASPECT_RATIO)
+                : height;
+
+        SplashDimnensionTuplet splashDimensations = calculateSplashDimensations(defaultWidth, defaultHeight);
+
         return getSplashScreen(
-                width,
-                height,
+                splashDimensations.getWidth(),
+                splashDimensations.getHeight(),
                 splashReason,
                 loadingException,
                 isError,
                 mode,
                 imagePath);
+    }
+
+    private static SplashDimnensionTuplet calculateSplashDimensations(int defWidth, int defHeight) {
+        Integer configuredWidth = readPositiveDimension(ICEDTEA_WEB_SPLASH_MAXWIDTH);
+
+        Integer configuredHeight = readPositiveDimension(ICEDTEA_WEB_SPLASH_MAXHEIGHT);
+
+        int width = defWidth;
+        int height = defHeight;
+
+        if (configuredWidth != null && configuredHeight != null) {
+            width = configuredWidth;
+            height = configuredHeight;
+        } 
+        else if (configuredWidth != null) {
+            width = configuredWidth;
+            height = Math.max(1, (int) (width * ASPECT_RATIO));
+        } 
+        else if (configuredHeight != null) {
+            height = configuredHeight;
+            width = Math.max(1, (int) (height / ASPECT_RATIO));
+        }
+
+        return new SplashDimnensionTuplet(width, height);
+    }
+
+    private static Integer readPositiveDimension(String variableName) {
+        String value = getEnvironmentVariable(variableName);
+
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            int dimension = Integer.parseInt(value.trim());
+
+            if (dimension > 0) {
+                return dimension;
+            }
+        } 
+        catch (NumberFormatException ex) {}
+
+        OutputController.getLogger().log(OutputController.Level.ERROR_ALL, 
+                                         String.format("Ignoring invalid %s value: %s. Expected a positive integer.", 
+                                         variableName, 
+                                         value));
+
+        return null;
+    }
+
+    static public class SplashDimnensionTuplet {
+        private int width;
+        private int height;
+
+        private SplashDimnensionTuplet(int width, int height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+        public int getHeight() {
+            return height;
+        }
     }
 
     /**
