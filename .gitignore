@@ -113,3 +113,7 @@ Desktop.ini
 # JVM crash reports
 hs_err_pid*.log
 replay_pid*.log
+
+# MISC
+/html-gen/
+
