@@ -115,5 +115,7 @@ hs_err_pid*.log
 replay_pid*.log
 
 # MISC
+.env
 /html-gen/
+/InternalTests/
 
