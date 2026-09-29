@@ -7,3 +7,6 @@
 - https://www.jgoodies.com/download/demos/skeleton/skeleton.jnlp (**status** Works)
 - https://www.jgoodies.com/download/demos/looks/looksdemo.jnlp (**status** Works)
 - https://www.jgoodies.com/download/demos/metamorphosis/metamorphosis.jnlp (**status** Works)
+- https://aladin.cds.unistra.fr/java/aladin.jnlp (**status** Works)
+- https://sscweb.gsfc.nasa.gov/tipsod/tipsod-all.jnlp (**status** Doesn't work)
+- https://das2.org/autoplot/latest/autoplot.jnlp (**status* Works)
