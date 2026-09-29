@@ -543,6 +543,7 @@ $(WIN_INSTALLER_DIR)/itw-installer.json: clean-win-installer
 	-e "s|[@]MAJOR_VERSION[@]|$(MAJOR_VERSION)|g" \
 	-e "s|[@]MINOR_VERSION[@]|$(MINOR_VERSION)|g" \
 	-e "s|[@]MICRO_VERSION[@]|$(MICRO_VERSION)|g" \
+    -e "s|[@]BUILD_VERSION[@]|$(BUILD_VERSION)|g" \
 	-e s/[@]PACKAGE_VERSION[@]/$(PACKAGE_VERSION)/g $(WIN_INSTALLER_SRC_DIR)/installer.json.in > $@
 
 win-installer: win-only-image $(WIN_INSTALLER_DIR)/itw-installer.json
