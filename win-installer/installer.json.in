@@ -1,14 +1,15 @@
 {
-  "appName": "IcedTea-Web @PACKAGE_VERSION@",
+  "appName": "IcedTea-Web @PACKAGE_VERSION@-@BUILD_VERSION@",
   "versionMajor": "@MAJOR_VERSION@",
   "versionMinor": "@MINOR_VERSION@",
   "versionMicro": "@MICRO_VERSION@",
-  "versionPatch": "0",
-  "vendor": "IcedTea-Web open-source project",
+  "versionPatch": "1",
+  "vendor": "JG-Compliance IcedTea-Web FOSS project",
   "installDirName": "WebStart",
   "helpLink": "http://icedtea.classpath.org/wiki/IcedTea-Web",
+  "updateEnabled": true,
   "productUuid": "03ae99a2-d9b6-46af-9841-c4b810289b1b",
-  "updateUuid": "ff98de21-a283-40be-b0a5-74a6a4219de8",
+  "updateUuid": "dd291481-0da7-4054-bb03-2aa2b90b27cd",
   "vendorDirName": "IcedTeaWeb",
   "licenseFilePath": "../win-installer/LICENSE.rtf",
   "iconPath": "../win-installer/icon.ico",
@@ -146,6 +147,34 @@
       "action": "set",
       "part": "last",
       "value": "[INSTALLDIR]bin"
+    },
+    {
+      "name": "ICEDTEA_WEB_SPLASH_CUSTOM_IMG",
+      "action": "set",
+      "system": true,
+      "part": "all",
+      "value": "[INSTALLDIR]customer\\NR\\nr_logo_1.png"
+    },
+    {
+      "name": "ICEDTEA_WEB_SPLASH",
+      "action": "set",
+      "system": true,
+      "part": "all",
+      "value": "custom"
+    },
+    {
+      "name": "ICEDTEA_WEB_PLUGIN_SPLASH",
+      "action": "set",
+      "system": true,
+      "part": "all",
+      "value": "custom"
+    },
+    {
+      "name": "ICEDTEA_WEB_SPLASH_MAXHEIGHT",
+      "action": "set",
+      "system": true,
+      "part": "all",
+      "value": "650"
     }
   ]
 }
