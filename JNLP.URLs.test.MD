@@ -10,6 +10,7 @@
 - https://aladin.cds.unistra.fr/java/aladin.jnlp (**status** Works)
 - https://sscweb.gsfc.nasa.gov/tipsod/tipsod-all.jnlp (**status** Doesn't work)
 - https://das2.org/autoplot/latest/autoplot.jnlp (**status** Works)
+- https://spdf.gsfc.nasa.gov/skteditor/skteditor.jnlp (**status** Doesn't work)
 
 ### Example
 ```PowerShell
