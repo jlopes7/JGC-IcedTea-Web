@@ -114,8 +114,12 @@ Desktop.ini
 hs_err_pid*.log
 replay_pid*.log
 
+# MSI Generation
+/build-msi/
+
 # MISC
 .env
 /html-gen/
 /InternalTests/
+/customer/
 
