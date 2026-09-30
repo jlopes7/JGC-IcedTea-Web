@@ -79,6 +79,10 @@ fi
 # Reconfigure every time so the selected JDK is actually used.
 printf '\nConfiguring the Java build...\n'
 
+export ITW_WIX_DIR="$ITW_REPO/build-deps/wix-3.14.1"
+export ITW_WIXGEN_JAR="$ITW_REPO/build-deps/wixgen.jar"
+export ITW_MSI_STAGE="$ITW_REPO/build-msi/image"
+
 bash ./configure \
     --with-jdk-home="$ITW_JDK" \
     --with-itw-libs=BUNDLED \
@@ -87,7 +91,10 @@ bash ./configure \
     --with-rhino="$ITW_REPO/build-deps/js.jar" \
     --disable-native-plugin \
     --disable-docs \
-    --enable-shell-launchers
+    --enable-shell-launchers \
+    --with-wix="$ITW_WIX_DIR" \
+    --with-wixgen="$ITW_WIXGEN_JAR" \
+    --prefix="$ITW_MSI_STAGE"
 
 # The first make target is always clean.
 printf '\nCleaning build outputs...\n'
