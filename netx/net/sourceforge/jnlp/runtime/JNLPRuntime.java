@@ -258,6 +258,8 @@ public class JNLPRuntime {
 
         ServiceManager.setServiceManagerStub(new XServiceManagerStub()); // ignored if we're running under Web Start
 
+        EbsHttpTrace.install();
+
         policy = new JNLPPolicy();
         security = new JNLPSecurityManager(); // side effect: create JWindow
 

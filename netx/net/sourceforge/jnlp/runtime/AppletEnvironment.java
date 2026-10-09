@@ -198,8 +198,27 @@ public class AppletEnvironment implements AppletContext, AppletStub {
                         // starting (they use Component.getImage or something)
                         cont.setVisible(true);
 
+                        EbsHttpTrace.state(
+                                "before-init",
+                                String.valueOf(getCodeBase()),
+                                String.valueOf(getDocumentBase()),
+                                getParameter("serverURL"));
+
                         applet.init();
+
+                        EbsHttpTrace.state(
+                                "after-init",
+                                String.valueOf(getCodeBase()),
+                                String.valueOf(getDocumentBase()),
+                                getParameter("serverURL"));
+
                         applet.start();
+
+                        EbsHttpTrace.state(
+                                "after-start-returned",
+                                String.valueOf(getCodeBase()),
+                                String.valueOf(getDocumentBase()),
+                                getParameter("serverURL"));
 
                         cont.invalidate(); // this should force the applet to
                         cont.validate(); // the correct size and to repaint

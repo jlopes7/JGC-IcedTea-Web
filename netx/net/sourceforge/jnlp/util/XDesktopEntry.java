@@ -633,13 +633,13 @@ public class XDesktopEntry implements GenericDesktopEntry {
             }
             //the icon is much more likely to be found behind / then behinf \/ 
             //So rather duplicating the code here, then wait double time if the icon will be at the start of the path
-            for (String path : possibleFavIconLocations(file.getNotNullProbalbeCodeBase().getPath())) {
+            /*for (String path : possibleFavIconLocations(file.getNotNullProbalbeCodeBase().getPath())) {
                 URL favico = favUrl("\\", path, file);
                 URL urlLocation = CacheUtil.getCachedResourceURL(favico, null, UpdatePolicy.SESSION);
                 if (urlLocation != null) {
                     return urlLocation;
                 }
-            }
+            }*/
         } catch (Exception ex) {
             //favicon 404 or similar
             OutputController.getLogger().log(ex);
