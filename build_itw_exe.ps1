@@ -1,14 +1,50 @@
 #Requires -Version 5.1
 
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Build')]
 param(
-    [Parameter(Position = 0)]
+    [Parameter(Position = 0, ParameterSetName = 'Build')]
     [Alias('JavaHome')]
     [ValidateNotNullOrEmpty()]
     [string]$JdkHome = 'C:\cygwin64\zulu8',
 
+    [Parameter(ParameterSetName = 'Build')]
     [ValidateNotNullOrEmpty()]
-    [string]$Toolchain = 'stable-x86_64-pc-windows-msvc'
+    [string]$Toolchain = 'stable-x86_64-pc-windows-msvc',
+
+    [Parameter(Mandatory, ParameterSetName = 'Sign')]
+    [switch]$SignOnly,
+
+    [Parameter(Mandatory, ParameterSetName = 'Verify')]
+    [switch]$VerifyOnly,
+
+    [Parameter(Mandatory, ParameterSetName = 'Check')]
+    [switch]$CheckSigning,
+
+    [Parameter(Mandatory, ParameterSetName = 'Sign')]
+    [Parameter(Mandatory, ParameterSetName = 'Verify')]
+    [ValidateNotNullOrEmpty()]
+    [string[]]$Files,
+
+    [string]$SigningThumbprint = $(
+        if ($env:ITW_SIGNING_THUMBPRINT) {
+            $env:ITW_SIGNING_THUMBPRINT
+        }
+        else {
+            '49B48FE61D2959F117DFDACECC6C03226084FAF0'
+        }
+    ),
+
+    [string]$SignTool = $env:ITW_SIGNTOOL,
+
+    [AllowEmptyString()]
+    [string]$TimestampUrl = $(
+        if (Test-Path Env:ITW_TIMESTAMP_URL) {
+            $env:ITW_TIMESTAMP_URL
+        }
+        else {
+            'http://timestamp.digicert.com'
+        }
+    )
 )
 
 Set-StrictMode -Version Latest
@@ -38,6 +74,112 @@ $Launchers = @(
     }
 )
 
+function Invoke-JgcCodeSigning {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string] $SignTool,
+
+        [Parameter(Mandatory)]
+        [string] $Thumbprint,
+
+        [Parameter(Mandatory)]
+        [string[]] $Files,
+
+        [string] $TimestampUrl
+    )
+
+    foreach ($file in $Files) {
+        $resolvedFile = (
+            Resolve-Path -LiteralPath $file -ErrorAction Stop
+        ).ProviderPath
+
+        $signArguments = @(
+            'sign',
+            '/s', 'My',
+            '/sha1', $Thumbprint,
+            '/fd', 'SHA256',
+            '/d', 'JGC IcedTea-Web'
+        )
+
+        if ($TimestampUrl) {
+            $signArguments += @(
+                '/tr', $TimestampUrl,
+                '/td', 'SHA256'
+            )
+        }
+
+        & $SignTool @signArguments $resolvedFile
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Signing failed or reported a warning: $resolvedFile"
+        }
+
+        Assert-JgcSignature -SignTool $SignTool -Thumbprint $Thumbprint -File $resolvedFile
+    }
+}
+
+function Assert-JgcSignature {
+    param(
+        [string]$SignTool,
+        [string]$Thumbprint,
+        [string]$File
+    )
+
+    $resolvedFile = (
+        Resolve-Path -LiteralPath $File -ErrorAction Stop
+    ).ProviderPath
+
+    & $SignTool verify /pa /v $resolvedFile
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Signature verification failed: $resolvedFile"
+    }
+
+    $signature = Get-AuthenticodeSignature -LiteralPath $resolvedFile
+
+    if ($null -eq $signature.SignerCertificate -or
+        $signature.SignerCertificate.Thumbprint -ne $Thumbprint) {
+        throw "File is not signed by the configured JGC certificate: $resolvedFile"
+    }
+}
+
+function Resolve-JgcSignTool {
+    param([string]$Path)
+
+    if (-not [string]::IsNullOrWhiteSpace($Path)) {
+        Assert-File $Path
+        return (Resolve-Path -LiteralPath $Path).ProviderPath
+    }
+
+    $command = Get-Command signtool.exe `
+        -CommandType Application `
+        -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if ($command) {
+        return $command.Source
+    }
+
+    $sdkTools = @(
+        Get-ChildItem -Path (
+            "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe"
+        ) -ErrorAction SilentlyContinue |
+        Sort-Object {
+            [version]$_.Directory.Parent.Name
+        } -Descending
+    )
+
+    if ($sdkTools.Count -eq 0) {
+        throw (
+            'SignTool was not found. Install Windows SDK Signing Tools ' +
+            'or set ITW_SIGNTOOL to its full Windows path.'
+        )
+    }
+
+    return $sdkTools[0].FullName
+}
+
 function Assert-File {
     param([string]$Path)
 
@@ -63,6 +205,87 @@ $BuildExitCode = 0
 Push-Location -LiteralPath $RepoDir
 
 try {
+        $SigningThumbprint = (
+        $SigningThumbprint -replace '\s', ''
+    ).ToUpperInvariant()
+
+    if ($SigningThumbprint -notmatch '^[0-9A-F]{40}$') {
+        throw 'SigningThumbprint must be a 40-character certificate thumbprint.'
+    }
+
+    $SignTool = Resolve-JgcSignTool $SignTool
+
+    if ($TimestampUrl -eq 'none') {
+        $TimestampUrl = ''
+    }
+
+    # Verification needs public trust; signing also needs the private key.
+    if (-not $VerifyOnly) {
+        $certificatePath = "Cert:\CurrentUser\My\$SigningThumbprint"
+
+        if (-not (Test-Path -LiteralPath $certificatePath)) {
+            throw (
+                "Signing certificate missing from $certificatePath. " +
+                'Run as the account holding its private key; a .cer alone cannot sign.'
+            )
+        }
+
+        $certificate = Get-Item -LiteralPath $certificatePath
+
+        if (-not $certificate.HasPrivateKey) {
+            throw 'The signing certificate has no private key on this account.'
+        }
+
+        $now = Get-Date
+
+        if ($now -lt $certificate.NotBefore -or
+            $now -gt $certificate.NotAfter) {
+            throw 'The signing certificate is outside its validity period.'
+        }
+
+        $ekuOids = @(
+            $certificate.Extensions |
+            Where-Object {
+                $_.Oid.Value -eq '2.5.29.37'
+            } |
+            ForEach-Object {
+                $_.EnhancedKeyUsages |
+                ForEach-Object { $_.Value }
+            }
+        )
+
+        if ('1.3.6.1.5.5.7.3.3' -notin $ekuOids) {
+            throw 'The certificate does not have the Code Signing enhanced key usage.'
+        }
+    }
+
+    # These modes are used by build_itw_msi.sh.
+    if ($CheckSigning) {
+        Write-Host "Signing prerequisites ready: $SigningThumbprint"
+        exit 0
+    }
+
+    if ($VerifyOnly) {
+        foreach ($file in $Files) {
+            Assert-JgcSignature `
+                -SignTool $SignTool `
+                -Thumbprint $SigningThumbprint `
+                -File $file
+        }
+
+        exit 0
+    }
+
+    if ($SignOnly) {
+        Invoke-JgcCodeSigning `
+            -SignTool $SignTool `
+            -Thumbprint $SigningThumbprint `
+            -Files $Files `
+            -TimestampUrl $TimestampUrl
+
+        exit 0
+    }
+    
     foreach ($Command in @('cargo.exe', 'rustup.exe', 'link.exe')) {
         if (-not (Get-Command $Command -ErrorAction SilentlyContinue)) {
             throw (
@@ -215,6 +438,21 @@ try {
 
         Copy-Item -LiteralPath $BuiltExe -Destination $Destination -Force
     }
+
+    # Sign the distribution copies after all binary/resource changes.
+    $launcherFiles = @(
+        $Launchers | ForEach-Object {
+            Join-Path $BinDir "$($_.Name).exe"
+        }
+    )
+
+    Write-Host "`nSigning Windows launchers..."
+
+    Invoke-JgcCodeSigning `
+        -SignTool $SignTool `
+        -Thumbprint $SigningThumbprint `
+        -Files $launcherFiles `
+        -TimestampUrl $TimestampUrl
 
     Write-Host "`nBuild completed successfully."
     Write-Host "Distribution: $DistDir"

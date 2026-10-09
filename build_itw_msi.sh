@@ -16,6 +16,29 @@ ITW_REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 pushd . &>/dev/null
 cd "$ITW_REPO"
 
+# Use the companion PowerShell script for signing and verification.
+# Run under the Windows account holding the signing private key.
+if ! command -v powershell.exe >/dev/null 2>&1; then
+    printf 'ERROR: Windows PowerShell is required for signing.\n' >&2
+    exit 1
+fi
+
+if [[ ! -f "$ITW_REPO/build_itw_exe.ps1" ]]; then
+    printf 'ERROR: Updated build_itw_exe.ps1 must be beside this script.\n' >&2
+    exit 1
+fi
+
+ITW_SIGNING_SCRIPT="$(cygpath -aw "$ITW_REPO/build_itw_exe.ps1")"
+
+invoke_signing() {
+    powershell.exe -NoLogo -NoProfile -NonInteractive \
+        -ExecutionPolicy Bypass \
+        -File "$ITW_SIGNING_SCRIPT" "$@"
+}
+
+# Check signing prerequisites before starting the MSI build.
+invoke_signing -CheckSigning
+
 ITW_JDK_UNIX="$(cygpath -au "$JDK_ARGUMENT")"
 
 export ITW_JDK
@@ -117,6 +140,12 @@ cp "$ITW_REPO/javaws.ico" \
 # Include the repository licence in the installed distribution.
 cp "$ITW_REPO/COPYING" "$ITW_MSI_STAGE/COPYING"
 
+# Verify the exact executable copies that WiX will package.
+for launcher in javaws itweb-settings policyeditor; do
+    invoke_signing -VerifyOnly -Files \
+        "$(cygpath -aw "$ITW_MSI_STAGE/bin/$launcher.exe")"
+done
+
 echo 'Generating the MSI...'
 
 # We have already prepared the installation image from dist-native.
@@ -139,7 +168,11 @@ if [[ ! -s "$ITW_MSI_FILE" ]]; then
     exit 1
 fi
 
-echo -n 'MSI generated successfully:'
+echo 'Signing and verifying the MSI...'
+
+invoke_signing -SignOnly -Files "$(cygpath -aw "$ITW_MSI_FILE")"
+
+echo -n 'Signed MSI generated successfully: '
 cygpath -aw "$ITW_MSI_FILE"
 
 exit 0
