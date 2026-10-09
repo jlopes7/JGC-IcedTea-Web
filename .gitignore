@@ -122,4 +122,6 @@ replay_pid*.log
 /html-gen/
 /InternalTests/
 /customer/
+/dist-zip/
+/CodeSigning/
 
