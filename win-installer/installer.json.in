@@ -3,7 +3,8 @@
   "versionMajor": "@MAJOR_VERSION@",
   "versionMinor": "@MINOR_VERSION@",
   "versionMicro": "@MICRO_VERSION@",
-  "versionPatch": "1",
+  "versionPatch": "2",
+  "win64": true,
   "vendor": "JG-Compliance IcedTea-Web FOSS project",
   "installDirName": "WebStart",
   "helpLink": "http://icedtea.classpath.org/wiki/IcedTea-Web",
@@ -23,17 +24,6 @@
   "registryKeys": [
     {
       "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\MIME\\Database\\Content Type\\application/x-java-jnlp-file",
-      "values": [
-        {
-        "type": "string",
-        "name": "Extension",
-        "value": ".jnlp"
-        }
-      ]
-    },
-    {
-      "root": "HKLM",
       "key": "SOFTWARE\\Classes\\.jnlp",
       "values": [
         {
@@ -45,6 +35,99 @@
           "type": "string",
           "name": "Content Type",
           "value": "application/x-java-jnlp-file"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\.jnlp\\OpenWithProgids",
+      "values": [
+        {
+          "type": "string",
+          "name": "JNLPFile",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\JNLPFile",
+      "values": [
+        {
+          "type": "string",
+          "name": "",
+          "value": "JNLP File"
+        },
+        {
+          "type": "integer",
+          "name": "EditFlags",
+          "value": "65536"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\JNLPFile\\DefaultIcon",
+      "values": [
+        {
+          "type": "string",
+          "name": "",
+          "value": "\"[INSTALLDIR]share\\pixmaps\\javaws.ico\",0"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\JNLPFile\\shell\\open\\command",
+      "values": [
+        {
+          "type": "string",
+          "name": "",
+          "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe",
+      "values": [
+        {
+          "type": "string",
+          "name": "FriendlyAppName",
+          "value": "IcedTea-Web"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe\\shell\\open\\command",
+      "values": [
+        {
+          "type": "string",
+          "name": "",
+          "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe\\SupportedTypes",
+      "values": [
+        {
+          "type": "string",
+          "name": ".jnlp",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\MIME\\Database\\Content Type\\application/x-java-jnlp-file",
+      "values": [
+        {
+          "type": "string",
+          "name": "Extension",
+          "value": ".jnlp"
         }
       ]
     },
@@ -77,44 +160,6 @@
     },
     {
       "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\JNLPFile",
-      "values": [
-        {
-          "type": "string",
-          "name": "",
-          "value": "JNLP File"
-        },
-        {
-          "type": "integer",
-          "name": "EditFlags",
-          "value": "65536"
-        }
-      ]
-    },
-    {
-      "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\JNLPFile\\DefaultIcon",
-      "values": [
-        {
-          "type": "string",
-          "name": "",
-          "value": "[INSTALLDIR]share\\pixmaps\\javaws.ico"
-        }
-      ]
-    },
-    {
-      "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\JNLPFile\\shell\\open\\command",
-      "values": [
-        {
-          "type": "string",
-          "name": "",
-          "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
-        }
-      ]
-    },
-    {
-      "root": "HKLM",
       "key": "SOFTWARE\\Classes\\jnlps",
       "values": [
         {
@@ -137,17 +182,6 @@
           "type": "string",
           "name": "",
           "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
-        }
-      ]
-    },
-    {
-      "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\MIME\\Database\\Content Type\\application/x-java-jnlp-file",
-      "values": [
-        {
-          "type": "string",
-          "name": "Extension",
-          "value": ".jnlp"
         }
       ]
     }

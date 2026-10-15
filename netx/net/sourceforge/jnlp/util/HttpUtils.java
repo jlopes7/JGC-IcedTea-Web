@@ -37,6 +37,7 @@
 package net.sourceforge.jnlp.util;
 
 import net.sourceforge.jnlp.util.logging.OutputController;
+import net.sourceforge.jnlp.util.logging.OptionalResourceLog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -48,12 +49,22 @@ public class HttpUtils {
      * Captured IOException is consumed and printed
      * @param c the connection to be closed silently
      */
-    public static void consumeAndCloseConnectionSilently(HttpURLConnection c) {
+    public static void consumeAndCloseConnectionSilently(
+            HttpURLConnection c) {
+
         try {
             consumeAndCloseConnection(c);
         } catch (IOException ex) {
-            OutputController.getLogger().log("Following exception: '" + ex.getMessage() + "' should be harmless, but may help in finding root cause.");
-            OutputController.getLogger().log(ex);
+            if (!OptionalResourceLog.logIfOptionalResourceFailure(c.getURL(), "HTTP response cleanup failed (" + ex.getClass().getSimpleName() + ")")) {
+
+                OutputController.getLogger().log(
+                        "Following exception: '"
+                                + ex.getMessage()
+                                + "' should be harmless, but may help"
+                                + " in finding root cause.");
+
+                OutputController.getLogger().log(ex);
+            }
         }
     }
 

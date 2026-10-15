@@ -39,6 +39,7 @@ import net.sourceforge.jnlp.security.dialogs.InetSecurity511Panel;
 import net.sourceforge.jnlp.util.HttpUtils;
 import net.sourceforge.jnlp.util.UrlUtils;
 import net.sourceforge.jnlp.util.logging.OutputController;
+import net.sourceforge.jnlp.util.logging.OptionalResourceLog;
 
 public class ResourceDownloader implements Runnable {
 
@@ -136,7 +137,9 @@ public class ResourceDownloader implements Runnable {
                 initializeOfflineResource();
             }
         } catch (Exception e) {
-            OutputController.getLogger().log(e);
+            if (!OptionalResourceLog.logIfOptionalResourceFailure(resource.getLocation(), "Initialization failed (" + e.getClass().getSimpleName() + ")")) {
+                OutputController.getLogger().log(e);
+            }
             resource.changeStatus(EnumSet.noneOf(Resource.Status.class), EnumSet.of(ERROR));
             synchronized (lock) {
                 lock.notifyAll(); // wake up wait's to check for completion
@@ -255,7 +258,19 @@ public class ResourceDownloader implements Runnable {
                     resource.changeStatus(EnumSet.of(PREDOWNLOAD, DOWNLOADING), EnumSet.of(DOWNLOADED));
                 }
             } else {
-                OutputController.getLogger().log(OutputController.Level.ERROR_ALL, "You are trying to get resource " + resource.getLocation().toExternalForm() + " but it is not in cache and could not be downloaded. Attempting to continue, but you may expect failure");
+                //OutputController.getLogger().log(OutputController.Level.ERROR_ALL, "You are trying to get resource " + resource.getLocation().toExternalForm() + " but it is not in cache and could not be downloaded. Attempting to continue, but you may expect failure");
+                if (!OptionalResourceLog.logIfOptionalResourceFailure(
+                        resource.getLocation(),
+                        "No downloadable or cached copy;"
+                                + " continuing with the application fallback.")) {
+
+                    OutputController.getLogger().log(
+                            OutputController.Level.ERROR_ALL,
+                            "You are trying to get resource "
+                                    + resource.getLocation().toExternalForm()
+                                    + " but it is not in cache and could not be downloaded."
+                                    + " Attempting to continue, but you may expect failure");
+                }
                 resource.changeStatus(EnumSet.noneOf(Resource.Status.class), EnumSet.of(ERROR));
             }
 
@@ -319,7 +334,13 @@ public class ResourceDownloader implements Runnable {
                             urls.add(response.URL);
                         }
                     } else if (response.isInvalid()) {
-                        OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "For " + resource.toString() + " the server returned " + response.result + " code for " + requestMethod + " request for " + url.toExternalForm());
+                        if (!OptionalResourceLog.logIfOptionalResourceFailure(resource.getLocation(), "HTTP " + response.result + " for " + requestMethod)) {
+
+                            OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "For " + resource.toString()
+                                            + " the server returned " + response.result
+                                            + " code for " + requestMethod
+                                            + " request for " + url.toExternalForm());
+                        }
                     } else {
                         OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "best url for " + resource.toString() + " is " + url.toString() + " by " + requestMethod);
                         if (response.URL == null) {
@@ -330,8 +351,20 @@ public class ResourceDownloader implements Runnable {
                     }
                 } catch (IOException e) {
                     // continue to next candidate
-                    OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "While processing " + url.toString() + " by " + requestMethod + " for resource " + resource.toString() + " got " + e + ": ");
-                    OutputController.getLogger().log(e);
+                    /*OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "While processing " + url.toString() + " by " + requestMethod + " for resource " + resource.toString() + " got " + e + ": ");
+                    OutputController.getLogger().log(e);*/
+                    // Continue to the next candidate.
+                    if (!OptionalResourceLog.logIfOptionalResourceFailure(resource.getLocation(), requestMethod + " failed (" + e.getClass().getSimpleName() + ")")) {
+
+                        OutputController.getLogger().log(
+                                OutputController.Level.ERROR_DEBUG,
+                                "While processing " + url.toString()
+                                        + " by " + requestMethod
+                                        + " for resource " + resource.toString()
+                                        + " got " + e + ": ");
+
+                        OutputController.getLogger().log(e);
+                    }
                 }
             }
         }
@@ -375,7 +408,9 @@ public class ResourceDownloader implements Runnable {
             }
             resource.fireDownloadEvent(); // fire DOWNLOADED
         } catch (Exception ex) {
-            OutputController.getLogger().log(ex);
+            if (!OptionalResourceLog.logIfOptionalResourceFailure(resource.getLocation(), "Download failed (" + ex.getClass().getSimpleName() + ")")) {
+                OutputController.getLogger().log(ex);
+            }
             resource.changeStatus(EnumSet.noneOf(Resource.Status.class), EnumSet.of(ERROR));
             synchronized (lock) {
                 lock.notifyAll();

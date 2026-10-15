@@ -232,7 +232,7 @@ export PLUGIN_COVERAGE_BOOTCLASSPATH='"-Xbootclasspath/a:$(UNIFIED_JACOCO_CLASSP
 export JDK_UPDATE_VERSION=50
 
 # Build version
-BUILD_VERSION = 3rc
+BUILD_VERSION = 4rc
 
 # Sources list
 
@@ -552,6 +552,7 @@ $(WIN_INSTALLER_DIR)/itw-installer.json: clean-win-installer
 #cd $(WIN_INSTALLER_DIR) && mv itw-installer.msi $(distdir).msi
 win-installer: win-only-image $(WIN_INSTALLER_DIR)/itw-installer.json
 	"$(JAVA)" -jar "$(WIXGEN_JAR)" "$(DESTDIR)$(prefix)" -c $(WIN_INSTALLER_DIR)/itw-installer.json -o $(WIN_INSTALLER_DIR)/itw-installer.wxs
+	powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$$(cygpath -aw "$(WIN_INSTALLER_SRC_DIR)/Finalize-Wix.ps1")" -WxsPath "$$(cygpath -aw "$(WIN_INSTALLER_DIR)/itw-installer.wxs")"
 	cd $(WIN_INSTALLER_DIR) && "$(WIX_TOOLSET_DIR)"/candle.exe /nologo itw-installer.wxs
 	cd $(WIN_INSTALLER_DIR) && "$(WIX_TOOLSET_DIR)"/light.exe /nologo -sval -ext WixUIExtension itw-installer.wixobj
 	cd $(WIN_INSTALLER_DIR) && mv itw-installer.msi "jgc-j8-icedtea-web-$(PACKAGE_VERSION)-$(BUILD_VERSION)-x64.msi"

@@ -191,6 +191,8 @@ public final class DeploymentConfiguration {
     public static final String KEY_ENABLE_LEGACY_LOGBASEDFILELOG = "deployment.log.file.legacylog";
     public static final String KEY_ENABLE_LOGGING_TOSTREAMS = "deployment.log.stdstreams";
     public static final String KEY_ENABLE_LOGGING_TOSYSTEMLOG = "deployment.log.system";
+
+    public static final String KEY_ENABLE_EBS_HTTP_LOG = "deployment.ebs.trace";
     
     /*
      * manifest check
