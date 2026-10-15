@@ -17,6 +17,7 @@
 package net.sourceforge.jnlp.util;
 
 import net.sourceforge.jnlp.util.logging.OutputController;
+import net.sourceforge.jnlp.util.logging.OptionalResourceLog;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.io.BufferedReader;
@@ -321,8 +322,8 @@ public class XDesktopEntry implements GenericDesktopEntry {
             if (isMenu || isDesktop) {
                 try {
                     cacheIcon();
-                } catch (NonFileProtocolException ex) {
-                    OutputController.getLogger().log(ex);
+                } catch (IOException | NonFileProtocolException ex) {
+                    OptionalResourceLog.logIconFailure(ex);
                     //default icon will be used later
                 }
             }
@@ -502,7 +503,7 @@ public class XDesktopEntry implements GenericDesktopEntry {
                 Files.copy(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
             this.iconLocation = target.getAbsolutePath();
-            OutputController.getLogger().log(OutputController.Level.ERROR_DEBUG, "Cached desktop shortcut icon: " + target + " ,  With source from: " + origLocation);
+            OutputController.getLogger().log(OutputController.Level.MESSAGE_DEBUG, "Cached desktop shortcut icon: " + target + " ,  With source from: " + origLocation);
         }
     }
     
@@ -565,7 +566,7 @@ public class XDesktopEntry implements GenericDesktopEntry {
             return target;
         }
         catch (IOException e) {
-            OutputController.getLogger().log(OutputController.Level.ERROR_ALL, e);
+            OptionalResourceLog.logIconFailure(e);
             return null;
         }
     }
@@ -574,10 +575,10 @@ public class XDesktopEntry implements GenericDesktopEntry {
         try {
             cacheIcon();
         } catch (NonFileProtocolException ex) {
-            OutputController.getLogger().log(ex);
+            OptionalResourceLog.logIconFailure(ex);
         }
         catch (final IOException e) {
-            OutputController.getLogger().log(OutputController.Level.ERROR_ALL, e);
+            OptionalResourceLog.logIconFailure(e);
         }
         return this.iconLocation;
     }
@@ -642,7 +643,7 @@ public class XDesktopEntry implements GenericDesktopEntry {
             }*/
         } catch (Exception ex) {
             //favicon 404 or similar
-            OutputController.getLogger().log(ex);
+            OptionalResourceLog.logIconFailure(ex);
         }
         return null;
     }

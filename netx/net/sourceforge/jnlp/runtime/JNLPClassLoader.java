@@ -47,6 +47,7 @@ import net.sourceforge.jnlp.util.JarFile;
 import net.sourceforge.jnlp.util.StreamUtils;
 import net.sourceforge.jnlp.util.UrlUtils;
 import net.sourceforge.jnlp.util.logging.OutputController;
+import net.sourceforge.jnlp.util.logging.OptionalResourceLog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -1609,7 +1610,9 @@ public class JNLPClassLoader extends URLClassLoader {
                     result = loadClassExt(name);
                     return result;
                 } catch (ClassNotFoundException cnfe1) {
-                    OutputController.getLogger().log(cnfe1);
+                    if (!OptionalResourceLog.isFormsBritishEnglishBundle(name)) {
+                        OutputController.getLogger().log(cnfe1);
+                    }
                 }
 
                 // As a last resort, look in any available indexes
@@ -1648,6 +1651,9 @@ public class JNLPClassLoader extends URLClassLoader {
         }
 
         if (result == null) {
+            if (OptionalResourceLog.isFormsBritishEnglishBundle(name)) {
+                OptionalResourceLog.logFormsBritishEnglishBundleMissing();
+            }
             throw new ClassNotFoundException(name);
         }
 

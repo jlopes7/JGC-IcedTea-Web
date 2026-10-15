@@ -3,7 +3,7 @@
   "versionMajor": "@MAJOR_VERSION@",
   "versionMinor": "@MINOR_VERSION@",
   "versionMicro": "@MICRO_VERSION@",
-  "versionPatch": "1",
+  "versionPatch": "2",
   "vendor": "JG-Compliance IcedTea-Web FOSS project",
   "installDirName": "WebStart",
   "helpLink": "http://icedtea.classpath.org/wiki/IcedTea-Web",
@@ -19,16 +19,15 @@
   "featureId": "itw",
   "featureTitle": "IcedTea-Web",
   "featureDescription": "Free Software implementation of Java Web Start, originally based on the NetX project",
-
   "registryKeys": [
     {
       "root": "HKLM",
       "key": "SOFTWARE\\Classes\\MIME\\Database\\Content Type\\application/x-java-jnlp-file",
       "values": [
         {
-        "type": "string",
-        "name": "Extension",
-        "value": ".jnlp"
+          "type": "string",
+          "name": "Extension",
+          "value": ".jnlp"
         }
       ]
     },
@@ -98,7 +97,7 @@
         {
           "type": "string",
           "name": "",
-          "value": "[INSTALLDIR]share\\pixmaps\\javaws.ico"
+          "value": "\"[INSTALLDIR]share\\pixmaps\\javaws.ico\",0"
         }
       ]
     },
@@ -142,12 +141,45 @@
     },
     {
       "root": "HKLM",
-      "key": "SOFTWARE\\Classes\\MIME\\Database\\Content Type\\application/x-java-jnlp-file",
+      "key": "SOFTWARE\\Classes\\.jnlp\\OpenWithProgids",
       "values": [
         {
           "type": "string",
-          "name": "Extension",
-          "value": ".jnlp"
+          "name": "JNLPFile",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe",
+      "values": [
+        {
+          "type": "string",
+          "name": "FriendlyAppName",
+          "value": "IcedTea-Web"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe\\shell\\open\\command",
+      "values": [
+        {
+          "type": "string",
+          "name": "",
+          "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Classes\\Applications\\javaws.exe\\SupportedTypes",
+      "values": [
+        {
+          "type": "string",
+          "name": ".jnlp",
+          "value": ""
         }
       ]
     }
@@ -187,6 +219,6 @@
       "part": "all",
       "value": "650"
     }
-  ]
+  ],
+  "win64": true
 }
-
