@@ -3,6 +3,7 @@ setlocal DisableDelayedExpansion
 rem Read-only. Usage: Check-ITW-Registry.cmd [ITW installation folder]
 set "ITW_CHECK_SELF=%~f0"
 set "ITW_CHECK_HOME=%~1"
+if not defined ITW_CHECK_HOME if exist "%~dp0bin\javaws.exe" set "ITW_CHECK_HOME=%~dp0"
 if not defined ITW_CHECK_HOME set "ITW_CHECK_HOME=C:\Program Files\IcedTeaWeb\WebStart"
 set "ITW_CHECK_PS=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 if exist "%SystemRoot%\Sysnative\WindowsPowerShell\v1.0\powershell.exe" set "ITW_CHECK_PS=%SystemRoot%\Sysnative\WindowsPowerShell\v1.0\powershell.exe"

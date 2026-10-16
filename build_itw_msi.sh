@@ -101,6 +101,7 @@ required_files=(
     "$ITW_REPO/win-installer/icon.ico"
     "$ITW_REPO/win-installer/top_banner.bmp"
     "$ITW_REPO/win-installer/greetings_banner.bmp"
+    "$ITW_REPO/Check-ITW-Registry.cmd"
 )
 
 for file in "${required_files[@]}"; do
@@ -139,6 +140,10 @@ cp "$ITW_REPO/javaws.ico" \
 
 # Include the repository licence in the installed distribution.
 cp "$ITW_REPO/COPYING" "$ITW_MSI_STAGE/COPYING"
+
+# Include the registry verification script in the installation root.
+cp "$ITW_REPO/Check-ITW-Registry.cmd" \
+   "$ITW_MSI_STAGE/Check-ITW-Registry.cmd"
 
 # Verify the exact executable copies that WiX will package.
 for launcher in javaws itweb-settings policyeditor; do

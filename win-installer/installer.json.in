@@ -184,6 +184,28 @@
           "value": "\"[INSTALLDIR]bin\\javaws.exe\" \"%1\""
         }
       ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Policies\\Microsoft\\Edge\\AutoOpenFileTypes",
+      "values": [
+        {
+          "type": "string",
+          "name": "1",
+          "value": "jnlp"
+        }
+      ]
+    },
+    {
+      "root": "HKLM",
+      "key": "SOFTWARE\\Policies\\Microsoft\\Edge\\AutoOpenAllowedForURLs",
+      "values": [
+        {
+          "type": "string",
+          "name": "1",
+          "value": "oracleoutsourcing.com"
+        }
+      ]
     }
   ],
   "environmentVariables": [
