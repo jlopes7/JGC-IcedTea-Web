@@ -103,6 +103,9 @@ cp -a "$ITW_CUSTOMER/." "$ITW_ZIP_STAGE/customer/NR/"
 cp "$ITW_REPO/javaws.ico" "$ITW_ZIP_STAGE/share/pixmaps/javaws.ico"
 cp "$ITW_REPO/COPYING" "$ITW_ZIP_STAGE/COPYING"
 
+mkdir -p "$ITW_ZIP_STAGE/diag"
+cp -a "$ITW_REPO/diag/." "$ITW_ZIP_STAGE/diag/"
+
 echo 'Creating ZIP...'
 if [[ "$ZIP_BACKEND" == zip ]]; then
     # Archive the image contents directly: bin/, share/, etc. at ZIP root.
