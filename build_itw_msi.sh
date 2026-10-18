@@ -51,6 +51,7 @@ export ITW_WIX_DIR="$ITW_REPO/build-deps/wix-3.14.1"
 export ITW_WIXGEN_JAR="$ITW_REPO/build-deps/wixgen.jar"
 export ITW_MSI_STAGE="$ITW_REPO/build-msi/image"
 export ITW_DIST="$ITW_REPO/dist-native"
+export ITW_DIAG_SRC="$ITW_REPO/diag"
 
 if [[ ! -f "$ITW_JDK_UNIX/bin/java.exe" ]]; then
     printf 'ERROR: Java executable not found under %s\n' "$ITW_JDK" >&2
@@ -101,7 +102,13 @@ required_files=(
     "$ITW_REPO/win-installer/icon.ico"
     "$ITW_REPO/win-installer/top_banner.bmp"
     "$ITW_REPO/win-installer/greetings_banner.bmp"
-    "$ITW_REPO/Check-ITW-Registry.cmd"
+    "$ITW_DIAG_SRC/Repair-ITW-Registry.cmd"
+    "$ITW_DIAG_SRC/Check-ITW-Registry.cmd"
+    "$ITW_DIAG_SRC/EBS-IcedTea-Web-User-Instructions.txt"
+    "$ITW_DIAG_SRC/ITW-EBS-Diagnostics-Toolkit/Collect-ITW-EBS.cmd"
+    "$ITW_DIAG_SRC/ITW-EBS-Diagnostics-Toolkit/Launch-ITW-EBS.cmd"
+    "$ITW_DIAG_SRC/ITW-EBS-Diagnostics-Toolkit/README.txt"
+    "$ITW_DIAG_SRC/ITW-EBS-Diagnostics-Toolkit/deployment-diagnostics.properties"
 )
 
 for file in "${required_files[@]}"; do
@@ -141,9 +148,9 @@ cp "$ITW_REPO/javaws.ico" \
 # Include the repository licence in the installed distribution.
 cp "$ITW_REPO/COPYING" "$ITW_MSI_STAGE/COPYING"
 
-# Include the registry verification script in the installation root.
-cp "$ITW_REPO/Check-ITW-Registry.cmd" \
-   "$ITW_MSI_STAGE/Check-ITW-Registry.cmd"
+# Include all diagnostic tools and documentation.
+mkdir -p "$ITW_MSI_STAGE/diag"
+cp -ra "$ITW_DIAG_SRC/." "$ITW_MSI_STAGE/diag/"
 
 # Verify the exact executable copies that WiX will package.
 for launcher in javaws itweb-settings policyeditor; do

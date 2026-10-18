@@ -232,7 +232,7 @@ export PLUGIN_COVERAGE_BOOTCLASSPATH='"-Xbootclasspath/a:$(UNIFIED_JACOCO_CLASSP
 export JDK_UPDATE_VERSION=50
 
 # Build version
-BUILD_VERSION = 4rc
+BUILD_VERSION = 5rc
 
 # Sources list
 

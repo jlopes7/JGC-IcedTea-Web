@@ -1,0 +1,196 @@
+EBS / ICEDTEA-WEB - USER DIAGNOSTIC INSTRUCTIONS
+==============================================
+
+The EBS download may be named frmservlet, frmservlet.jnlp, or a numbered
+variant. Always use its actual filename, including any extension.
+
+Run these steps using your normal Windows account. Administrator access is
+not required. Use Command Prompt (CMD) for the commands below, not PowerShell.
+
+IMPORTANT
+---------
+The EBS download is normally named frmservlet, WITHOUT a file extension.
+Do not use launch.jnlp unless that is the actual name of your downloaded file.
+EBS launch files may be session-specific and may be deleted after use. Do not
+reuse a previously launched file. Do not clear the Java cache or reinstall Java.
+
+1. LOCATE THE INSTALLED DIAGNOSTIC TOOLS
+---------------------------------------
+The diagnostic tools are included with the IcedTea-Web installation.
+
+Registry verification and repair:
+    C:\Program Files\IcedTeaWeb\WebStart\diag
+
+EBS collection and launch tools:
+    C:\Program Files\IcedTeaWeb\WebStart\diag\ITW-EBS-Diagnostics-Toolkit
+
+No separate toolkit extraction is required.
+Adjust these paths if IcedTea-Web was installed elsewhere.
+
+Run Check, Collect and Launch as the affected normal user.
+Repair-ITW-Registry.cmd requires administrator rights.
+
+2. ENABLE LOGGING BEFORE LAUNCHING EBS
+------------------------------------
+Close your existing Java / Oracle Forms application windows normally. Do not
+close or stop unrelated Java services/applications.
+
+Press Windows+R, enter the following folder and press Enter:
+
+    %USERPROFILE%\.config\icedtea-web
+
+Make a backup copy of deployment.properties before editing it. If support has
+already configured logging, check the entries below and leave them in place.
+
+Open deployment.properties in Notepad. Update or add the following entries so
+that each of these property names occurs only once:
+
+deployment.log=true
+deployment.log.headers=true
+deployment.log.file=true
+deployment.log.file.clientapp=true
+deployment.log.stdstreams=true
+deployment.console.startup.mode=SHOW
+
+Keep all other existing settings, especially deployment.jre.dir and proxy or
+security settings. Save the file as deployment.properties, not as a .txt file.
+If the folder/file is missing, read-only, or you cannot save, report that to
+support. Do not request administrator access or change another user's profile.
+
+3. ENABLE EBS TRACING FOR A NORMAL BROWSER LAUNCH
+-----------------------------------------------
+Skip this step if support has already set JAVA_TOOL_OPTIONS to include
+-Ditw.ebs.trace=true and you have signed out/in since that change.
+
+Search Windows Start for "Edit environment variables for your account".
+In User variables (not System variables), locate JAVA_TOOL_OPTIONS.
+
+If it does not exist, create it with:
+
+    Variable name:  JAVA_TOOL_OPTIONS
+    Variable value: -Ditw.ebs.trace=true
+
+If it already exists, record its original value and append a space followed by:
+
+    -Ditw.ebs.trace=true
+
+Preserve all existing options. Do not add another copy if this option is already
+present. Click OK to save. Save your open work, sign out of Windows and sign in
+again so the browser receives the updated setting. This option also affects
+other Java applications launched from your Windows user session during testing.
+
+4. OPEN COMMAND PROMPT IN THE TOOLKIT FOLDER
+-------------------------------------------
+Press Windows+R, type cmd and press Enter. Do not choose Run as administrator.
+Run:
+
+    cd /d "C:\Program Files\IcedTeaWeb\WebStart\diag\ITW-EBS-Diagnostics-Toolkit"
+
+If you extracted elsewhere, use that folder instead.
+
+5. REPRODUCE THE ISSUE THROUGH EBS ONCE
+--------------------------------------
+Log into EBS in the browser and open the affected function as you normally do.
+Allow the normal EBS / browser launch process to run once.
+
+Record:
+
+    Your name:
+    Computer name (run hostname in CMD):
+    Date and local time of the attempt:
+    EBS environment (production / test):
+    EBS function / responsibility selected:
+    Did Java or the Java console appear?:
+    Did the Oracle Forms window appear?:
+    Exact error message / visible behaviour:
+
+If the browser only downloads the file, cannot open it, or asks which application
+to use, record that and stop this launch attempt. Do not rename/replay the same
+file or change Windows file associations during this diagnostic test.
+
+Take a screenshot of any error if possible. If the Java console is visible,
+save/copy its text into Notepad as well. Save these extra items in:
+
+    %USERPROFILE%\ITW-EBS-Repro
+
+Create that folder in File Explorer if needed. Avoid including unrelated data.
+
+Close the Java application normally after recording the failure. For a frozen
+application, run the collection once while it is still visible; tell support
+that the application was frozen. Do not force-close it unless support asks.
+
+6. COLLECT THE DIAGNOSTICS
+--------------------------
+In the same CMD window, run the following commands one at a time:
+
+    if not exist "%USERPROFILE%\ITW-EBS-Repro" mkdir "%USERPROFILE%\ITW-EBS-Repro"
+
+    Collect-ITW-EBS.cmd - "..\.." - "%USERPROFILE%\ITW-EBS-Repro"
+
+The first '-' means collection does not require a saved JNLP file. It is correct
+even if frmservlet was deleted automatically. The script collects existing
+evidence; it does not launch EBS again. The second '-' retains the default output
+folder. The last argument includes your saved console text and screenshots.
+
+Wait for the script to finish and print the ZIP location. Large caches can take
+several minutes. If it reports warnings, keep the resulting ZIP and report those
+warnings to support. Do not rerun the application merely because of a warning.
+
+7. PROVIDE THE RESULTS TO SUPPORT
+--------------------------------
+Open:
+
+    %USERPROFILE%\ITW-EBS-Diagnostics
+
+Provide the ZIP matching the date/time of this test, plus the observations from
+step 5, through your normal support channel. The filename has this format:
+
+    ITW-EBS_<computer>_<timestamp>_<id>.zip
+
+The uncompressed folder is retained beside the ZIP. If ZIP creation failed,
+report the error and retain that folder. Diagnostic files may contain EBS session
+information; use your approved support channel.
+
+8. RESTORE THE TEMPORARY SETTINGS
+--------------------------------
+After collection, restore your previous deployment.properties from its backup
+if you changed it for this test, unless support asks you to keep logging enabled.
+
+If you changed JAVA_TOOL_OPTIONS, restore its original value. If you created it
+solely for this test, remove that user variable. Sign out/in to apply the restored
+environment when convenient. Do not delete options that were present before
+this test.
+
+OPTIONAL - COMMAND-LINE LAUNCH ONLY WHEN SUPPORT REQUESTS IT
+===========================================================
+This is a separate workflow. Do not run it with a file already used in step 5.
+Use it only when EBS/support provides an unused launch file that can be launched
+from CMD. If EBS requires immediate browser launch or the file has already been
+used/deleted, skip this section and follow the normal browser workflow above.
+
+A. Keep logging enabled as in step 2. A new CMD launch wrapper applies the EBS
+   trace option temporarily to itself and its child JVMs, so step 3 is not needed
+   for this command-line workflow alone.
+
+B. Confirm the exact unused filename. In CMD, run:
+
+    dir /a:-d "%USERPROFILE%\Downloads\frmservlet*"
+
+   If the actual file is frmservlet (1), frmservlet.jnlp, or another name, use that
+   exact name in the command below. If no file is found, stop and inform support.
+   Do not substitute launch.jnlp as a placeholder and do not add an extension.
+
+C. From the toolkit folder, launch the file once with console capture:
+
+    Launch-ITW-EBS.cmd "%USERPROFILE%\Downloads\frmservlet.jnlp" "..\.."
+
+   The wrapper uses this corrected application command internally:
+
+    "C:\Program Files\IcedTeaWeb\WebStart\bin\javaws.exe" -verbose -J-Ditw.ebs.trace=true "%USERPROFILE%\Downloads\frmservlet"
+
+   Run the wrapper command, not both commands. Console output is saved under
+   %USERPROFILE%\ITW-EBS-Repro. The Java console may also open separately.
+
+D. Reproduce the issue, record the result and close Java normally. Then follow
+   steps 6 and 7. The collector still uses '-' because the launch file may have
+   been deleted after use. Restore temporary settings as described in step 8.
