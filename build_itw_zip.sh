@@ -72,15 +72,18 @@ mkdir -p -- "$(dirname -- "$OUTPUT_ARGUMENT")"
 OUTPUT_DIR="$(cd -- "$(dirname -- "$OUTPUT_ARGUMENT")" && pwd -P)"
 OUTPUT_ZIP="$OUTPUT_DIR/$(basename -- "$OUTPUT_ARGUMENT")"
 
-# A temporary image inside a source tree would copy itself recursively.
+# Keep the temporary image outside every source tree being copied.
 DIST_REAL="$(cd -- "$ITW_DIST" && pwd -P)"
 CUSTOMER_REAL="$(cd -- "$ITW_CUSTOMER" && pwd -P)"
+DIAG_REAL="$(cd -- "$ITW_REPO/diag" && pwd -P)"
+
 case "$OUTPUT_DIR/" in
-    "$DIST_REAL/"*|"$CUSTOMER_REAL/"*)
-        printf 'ERROR: Place the output ZIP outside dist-native and customer/NR.\n' >&2
+    "$DIST_REAL/"*|"$CUSTOMER_REAL/"*|"$DIAG_REAL/"*)
+        printf 'ERROR: Place the output ZIP outside dist-native, customer/NR and diag.\n' >&2
         exit 1
         ;;
 esac
+
 if [[ -d "$OUTPUT_ZIP" ]]; then
     printf 'ERROR: Output path is a directory: %s\n' "$OUTPUT_ZIP" >&2
     exit 1
