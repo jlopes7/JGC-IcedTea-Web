@@ -146,7 +146,10 @@ cp "$ITW_REPO/javaws.ico" \
    "$ITW_MSI_STAGE/share/pixmaps/javaws.ico"
 
 # Include the repository licence in the installed distribution.
-cp "$ITW_REPO/COPYING" "$ITW_MSI_STAGE/COPYING"
+#cp "$ITW_REPO/COPYING" "$ITW_MSI_STAGE/COPYING"
+for doc in README.md COPYING LICENSE AUTHORS; do
+    cp "$ITW_REPO/$doc" "$ITW_MSI_STAGE/$doc"
+done
 
 # Include all diagnostic tools and documentation.
 mkdir -p "$ITW_MSI_STAGE/diag"

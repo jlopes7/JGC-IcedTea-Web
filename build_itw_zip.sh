@@ -104,7 +104,10 @@ cp "$ITW_CLASSES_JAR" "$ITW_ZIP_STAGE/share/icedtea-web/javaws.jar"
 mkdir -p "$ITW_ZIP_STAGE/customer/NR" "$ITW_ZIP_STAGE/share/pixmaps"
 cp -a "$ITW_CUSTOMER/." "$ITW_ZIP_STAGE/customer/NR/"
 cp "$ITW_REPO/javaws.ico" "$ITW_ZIP_STAGE/share/pixmaps/javaws.ico"
-cp "$ITW_REPO/COPYING" "$ITW_ZIP_STAGE/COPYING"
+#cp "$ITW_REPO/COPYING" "$ITW_ZIP_STAGE/COPYING"
+for doc in README.md COPYING LICENSE AUTHORS; do
+    cp "$ITW_REPO/$doc" "$ITW_ZIP_STAGE/$doc"
+done
 
 mkdir -p "$ITW_ZIP_STAGE/diag"
 cp -a "$ITW_REPO/diag/." "$ITW_ZIP_STAGE/diag/"
