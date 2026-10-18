@@ -381,7 +381,7 @@ try {
 $shallow=@($downloadDir,[Environment]::GetFolderPath('Desktop'),$env:TEMP,(Get-Location).Path)
 foreach ($dir in ($shallow | Where-Object {$_} | Select-Object -Unique)) {
     try {
-        foreach ($f in (Get-ChildItem -LiteralPath $dir -File -Force -ErrorAction Stop | Where-Object {$_.Name -match '(?i)(\.jnlp$|^hs_err_pid.*\.log$|^replay_pid.*\.log$|^javaws.*\.log$|^itw.*\.log$|^j[ai]va.*\.trace$)'})) { Collect $f.FullName 'Downloaded JNLP or JVM/launcher diagnostic text' }
+        foreach ($f in (Get-ChildItem -LiteralPath $dir -File -Force -ErrorAction Stop | Where-Object {$_.Name -match '(?i)(\.jnlp$|^frmservlet(?:\s*\(\d+\))?$|^hs_err_pid.*\.log$|^replay_pid.*\.log$|^javaws.*\.log$|^itw.*\.log$|^j[ai]va.*\.trace$)'})) { Collect $f.FullName 'Downloaded JNLP or JVM/launcher diagnostic text' }
     } catch {Note ('Shallow search unavailable: ' + $dir)}
 }
 if ($env:TEMP) {Collect (Join-Path $env:TEMP ($env:USERNAME+'\netx')) 'NetX temporary runtime files'}
